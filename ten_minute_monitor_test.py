@@ -169,11 +169,14 @@ def monitor_bus(stop_id: str, route_number: str):
                 print(f"Prediction difference: {round(prediction_difference/60, 2)} minutes")
                 del tracked_buses[trip_id]
 
-            time.sleep(10)
-
+            # Wait 20 seconds before next check
+            # This helps prevent rate limiting and provides reasonable update frequency
+            time.sleep(20)
         except Exception as e:
+            # Handle any errors (network issues, API problems, etc.)
             print(f"Error: {e}")
-            time.sleep(10)
+            # Wait before retrying to prevent rapid error loops
+            time.sleep(20)
 
 if __name__ == "__main__":
     STOP_ID = "8220DB000017"
