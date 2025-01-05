@@ -55,12 +55,21 @@ def now() -> datetime.datetime:
 
 
 def parseTime(t: str) -> datetime.datetime:
-  """Converts HH:MM:SS to a datetime.datetime"""
-  base_date = now().date()
-  if t.startswith('24:'):
-    t = t.replace('24:', '00:')
-    base_date += datetime.timedelta(days=1)
-  return datetime.datetime.combine(base_date, datetime.datetime.strptime(t, '%H:%M:%S').time())
+    """Converts HH:MM:SS to a datetime.datetime, handling times past midnight (>= 24:00:00)"""
+    base_date = now().date()
+
+    # Split the time string into hours, minutes, seconds
+    hours, minutes, seconds = map(int, t.split(':'))
+
+    # If hours >= 24, convert and adjust the date
+    if hours >= 24:
+        hours = hours - 24
+        base_date += datetime.timedelta(days=1)
+
+    # Format back to HH:MM:SS
+    adjusted_time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+    return datetime.datetime.combine(base_date, datetime.datetime.strptime(adjusted_time, '%H:%M:%S').time())
 
 
 def delta_seconds(now: datetime.datetime, then: datetime.datetime) -> float:
