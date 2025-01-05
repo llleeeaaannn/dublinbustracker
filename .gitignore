@@ -10,6 +10,7 @@ __pycache__
 /GTFS_Realtime
 /venv
 /config.ini
+/monitoring_data
 *.pyc
 __pycache__/
 config.ini
