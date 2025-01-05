@@ -30,6 +30,7 @@ def monitor_bus(stop_id, route_number):
     The function runs indefinitely, checking every 10 seconds for updates.
 
     Key Features:
+    - Only starts tracking buses when they are 10 minutes or less from arrival
     - Creates a CSV file with timestamp in filename for data logging
     - Tracks when each bus is first seen and when it disappears (assumed arrived)
     - Calculates actual journey duration vs predicted duration
@@ -37,7 +38,7 @@ def monitor_bus(stop_id, route_number):
 
     Data Collection Process:
     1. Every 10 seconds, fetches current live data
-    2. For new buses: records first appearance and predicted arrival
+    2. For new buses within 10 minutes: records first appearance and predicted arrival
     3. For disappeared buses: records actual arrival time
     4. Writes completed journeys to CSV file
 
@@ -55,7 +56,7 @@ def monitor_bus(stop_id, route_number):
         writer.writerow([
             'trip_id',          # Unique identifier for specific bus journey
             'route',            # Route number
-            'first_seen_at',    # Timestamp when bus first appeared in feed
+            'first_seen_at',    # Timestamp when bus first appeared in feed within 10 min threshold
             'initial_due_in_seconds',  # Original predicted arrival time in seconds
             'arrival_time',     # When bus disappeared from feed (assumed arrived)
             'actual_duration_seconds'  # Actual time taken from first seen to arrival
@@ -67,6 +68,7 @@ def monitor_bus(stop_id, route_number):
 
     print(f"Starting monitoring of route {route_number} at stop {stop_id}")
     print(f"Writing data to {filename}")
+    print(f"Will start tracking buses when they are 10 minutes or less from arrival")
 
     # Main monitoring loop
     while True:
@@ -84,8 +86,8 @@ def monitor_bus(stop_id, route_number):
                     trip_id = bus['trip_id']
                     current_trip_ids.add(trip_id)
 
-                    # If this is a new bus we haven't seen before, start tracking it
-                    if trip_id not in tracked_buses:
+                    # Only start tracking when bus is 10 minutes or less away
+                    if trip_id not in tracked_buses and bus['dueInSeconds'] <= 600:  # 600 seconds = 10 minutes
                         tracked_buses[trip_id] = {
                             'first_seen_at': current_time,
                             'initial_due_in_seconds': bus['dueInSeconds'],
