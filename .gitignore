@@ -10,3 +10,6 @@ __pycache__
 /GTFS_Realtime
 /venv
 /config.ini
+*.pyc
+__pycache__/
+config.ini
