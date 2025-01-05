@@ -119,9 +119,9 @@ def monitor_bus(stop_id, route_number):
                 # Remove the arrived bus from our tracking dictionary
                 del tracked_buses[trip_id]
 
-            # Wait 10 seconds before next check
+            # Wait 20 seconds before next check
             # This helps prevent overwhelming the API and provides reasonable update frequency
-            time.sleep(10)
+            time.sleep(20)
 
         except Exception as e:
             # Handle any errors (network issues, API problems, etc.)
