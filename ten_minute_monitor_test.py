@@ -64,7 +64,7 @@ def monitor_bus(stop_id: str, route_number: str):
     os.makedirs(data_dir, exist_ok=True)
 
     # Generate unique filename with timestamp
-    filename = os.path.join(data_dir, f"bus_monitoring_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv")
+    filename = os.path.join(data_dir, f"bus_monitoring_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")
 
     # Initialize CSV file with headers
     with open(filename, 'w', newline='') as f:
