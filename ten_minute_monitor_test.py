@@ -127,7 +127,7 @@ def monitor_bus(stop_id, route_number):
             # Handle any errors (network issues, API problems, etc.)
             print(f"Error: {e}")
             # Wait before retrying to prevent rapid error loops
-            time.sleep(10)
+            time.sleep(20)
 
 if __name__ == "__main__":
     # Configuration constants
