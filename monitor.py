@@ -4,21 +4,41 @@ import time
 import json
 import urllib.request
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
-def get_live_data(stop_id):
+def get_live_data(stop_ids: Optional[List[str]] = None, max_retries: int = 3):
     """
-    Fetches real-time bus data from the local GTFS server for a specific stop.
+    Fetches real-time bus data from the local GTFS server.
 
     Args:
-        stop_id (str): The ID of the bus stop to monitor (e.g., "8220DB000017")
+        stop_ids (list, optional): List of stop IDs to monitor. If None, shows all stops.
+        max_retries (int): Maximum number of retry attempts
 
     Returns:
         dict: JSON response containing real-time bus data
     """
-    url = f"http://127.0.0.1:6824/live.json?stop={stop_id}"
-    response = urllib.request.urlopen(url)
-    return json.loads(response.read())
+    base_url = "http://127.0.0.1:6824/live.json"
+
+    if stop_ids:
+        # Construct URL with multiple stops if provided
+        stop_params = "&".join(f"stop={stop}" for stop in stop_ids)
+        url = f"{base_url}?{stop_params}"
+    else:
+        # Use base URL for all stops
+        url = base_url
+
+    for attempt in range(max_retries):
+        try:
+            response = urllib.request.urlopen(url)
+            return json.loads(response.read())
+        except (ConnectionResetError, urllib.error.URLError) as e:
+            if attempt == max_retries - 1:  # Last attempt
+                print(f"Failed to get data after {max_retries} attempts: {e}")
+                raise
+            else:
+                wait_time = (attempt + 1) * 30  # Exponential backoff: 30s, 60s, 90s
+                print(f"Connection error (attempt {attempt + 1}/{max_retries}). Waiting {wait_time} seconds before retry...")
+                time.sleep(wait_time)
 
 def get_time_of_day(hour: int) -> str:
     """
@@ -55,9 +75,13 @@ def is_peak_hour(hour: int, day_of_week: int) -> bool:
     is_weekday = day_of_week < 5
     return (is_morning_peak or is_evening_peak) and is_weekday
 
-def monitor_bus(stop_id: str, route_number: str):
+def monitor_bus(stop_ids: Optional[List[str]] = None, route_numbers: Optional[List[str]] = None):
     """
-    Main monitoring function that tracks buses of a specific route at a specific stop.
+    Main monitoring function that tracks buses.
+
+    Args:
+        stop_ids (list, optional): List of stop IDs to monitor. If None, monitors all stops.
+        route_numbers (list, optional): List of route numbers to track. If None, tracks all routes.
     """
     # Create monitoring_data directory if it doesn't exist
     data_dir = "monitoring_data"
@@ -94,20 +118,23 @@ def monitor_bus(stop_id: str, route_number: str):
     # Dictionary to keep track of buses we're currently monitoring
     tracked_buses: Dict[str, Dict[str, Any]] = {}
 
-    print(f"Starting monitoring of route {route_number} at stop {stop_id}")
+    stops_desc = "all stops" if stop_ids is None else f"stops {', '.join(stop_ids)}"
+    routes_desc = "all routes" if route_numbers is None else f"routes {', '.join(route_numbers)}"
+    print(f"Starting monitoring of {routes_desc} at {stops_desc}")
     print(f"Writing data to {filename}")
     print(f"Will start tracking buses when they are 10 minutes or less from arrival")
 
     while True:
         try:
             current_time = datetime.datetime.now()
-            data = get_live_data(stop_id)
+            data = get_live_data(stop_ids)
 
             current_trip_ids = set()
 
             # Process each bus in the current live data
             for bus in data['live']:
-                if bus['route'] == route_number:
+                # Check if we should track this route
+                if route_numbers is None or bus['route'] in route_numbers:
                     trip_id = bus['trip_id']
                     due_in_minutes = bus['dueInSeconds'] / 60
                     current_trip_ids.add(trip_id)
@@ -170,16 +197,22 @@ def monitor_bus(stop_id: str, route_number: str):
                 del tracked_buses[trip_id]
 
             # Wait 20 seconds before next check
-            # This helps prevent rate limiting and provides reasonable update frequency
             time.sleep(20)
         except Exception as e:
-            # Handle any errors (network issues, API problems, etc.)
             print(f"Error: {e}")
-            # Wait before retrying to prevent rapid error loops
             time.sleep(20)
 
 if __name__ == "__main__":
-    STOP_ID = "8220DB000017"
-    ROUTE_NUMBER = "41"
+    # Example configurations:
 
-    monitor_bus(STOP_ID, ROUTE_NUMBER)
+    # Monitor specific stop and route
+    monitor_bus(stop_ids=["8220DB000017"], route_numbers=["41"])
+
+    # Monitor all stops and routes
+    # monitor_bus()
+
+    # Monitor specific stops, all routes
+    # monitor_bus(stop_ids=["8220DB000017", "8220DB000018"])
+
+    # Monitor all stops, specific routes
+    # monitor_bus(route_numbers=["41", "42"])
