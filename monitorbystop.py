@@ -16,7 +16,6 @@ def get_live_data(stop_id: str, max_retries: int = 3, logger=None):
     for attempt in range(max_retries):
         try:
             response = urllib.request.urlopen(url)
-            response = urllib.request.urlopen(url)
             data = json.loads(response.read())
             if logger:
                 logger.log_response(data, stop_id)
