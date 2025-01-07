@@ -11,6 +11,7 @@ __pycache__
 /venv
 /config.ini
 /monitoring_data
+/api_logs
 *.pyc
 __pycache__/
 config.ini
