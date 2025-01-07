@@ -13,21 +13,17 @@ def get_live_data(stop_id: str, max_retries: int = 3, logger=None):
     """
     url = f"http://127.0.0.1:6824/live.json?stop={stop_id}"
 
-    for attempt in range(max_retries):
-        try:
-            response = urllib.request.urlopen(url)
-            data = json.loads(response.read())
-            if logger:
-                logger.log_response(data, stop_id)
-            return data
-        except (ConnectionResetError, urllib.error.URLError) as e:
-            if attempt == max_retries - 1:
-                print(f"Failed to get data after {max_retries} attempts: {e}")
-                raise
-            else:
-                wait_time = (attempt + 1) * 30
-                print(f"Connection error (attempt {attempt + 1}/{max_retries}). Waiting {wait_time} seconds before retry...")
-                time.sleep(wait_time)
+    try:
+        response = urllib.request.urlopen(url)
+        data = json.loads(response.read())
+        if logger:
+            logger.log_response(data, stop_id)
+        return data
+        
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        time.sleep(30)  # Wait 30 seconds after any error
+        return None
 
 def get_time_of_day(hour: int) -> str:
     if 5 <= hour < 12:
