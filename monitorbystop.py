@@ -91,7 +91,7 @@ def monitor_bus(stop_id: str):
     while True:
         try:
             current_time = datetime.datetime.now()
-            data = get_live_data(stop_id)
+            data = get_live_data(stop_id, logger=logger)
 
             current_trip_ids = set()
 
