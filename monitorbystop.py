@@ -7,6 +7,9 @@ import os
 from typing import Dict, Any
 from apilogger import ApiLogger
 
+# Tries to get bus data from the API
+# If successful, returns the data and logs it
+# If it fails we simply return None
 def get_live_data(stop_id: str, max_retries: int = 3, logger=None):
     """
     Fetches real-time bus data from the local GTFS server for a specific stop.
@@ -19,10 +22,9 @@ def get_live_data(stop_id: str, max_retries: int = 3, logger=None):
         if logger:
             logger.log_response(data, stop_id)
         return data
-        
+
     except Exception as e:
         print(f"Error fetching data: {e}")
-        time.sleep(30)  # Wait 30 seconds after any error
         return None
 
 def get_time_of_day(hour: int) -> str:
