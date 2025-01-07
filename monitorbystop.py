@@ -10,7 +10,7 @@ from apilogger import ApiLogger
 # Tries to get bus data from the API
 # If successful, returns the data and logs it
 # If it fails we simply return None
-def get_live_data(stop_id: str, max_retries: int = 3, logger=None):
+def get_live_data(stop_id: str, logger=None):
     """
     Fetches real-time bus data from the local GTFS server for a specific stop.
     """
