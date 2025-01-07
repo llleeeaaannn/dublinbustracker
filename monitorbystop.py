@@ -7,7 +7,7 @@ import os
 from typing import Dict, Any
 from apilogger import ApiLogger
 
-def get_live_data(stop_id: str, max_retries: int = 3):
+def get_live_data(stop_id: str, max_retries: int = 3, logger=None):
     """
     Fetches real-time bus data from the local GTFS server for a specific stop.
     """
