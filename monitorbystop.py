@@ -15,7 +15,11 @@ def get_live_data(stop_id: str, max_retries: int = 3):
     for attempt in range(max_retries):
         try:
             response = urllib.request.urlopen(url)
-            return json.loads(response.read())
+            response = urllib.request.urlopen(url)
+            data = json.loads(response.read())
+            if logger:
+                logger.log_response(data, stop_id)
+            return data
         except (ConnectionResetError, urllib.error.URLError) as e:
             if attempt == max_retries - 1:
                 print(f"Failed to get data after {max_retries} attempts: {e}")
@@ -42,6 +46,10 @@ def is_peak_hour(hour: int, day_of_week: int) -> bool:
     return (is_morning_peak or is_evening_peak) and is_weekday
 
 def monitor_bus(stop_id: str):
+    # Logging Data to JSON file
+    logger = ApiLogger()
+    print(f"Logging API responses to {logger.filepath}")
+
     """
     Main monitoring function that tracks all buses at a specific stop.
     """
@@ -82,7 +90,7 @@ def monitor_bus(stop_id: str):
     while True:
         try:
             current_time = datetime.datetime.now()
-            data = get_live_data(stop_id)
+            data = get_live_data(stop_id, logger=logger)
 
             current_trip_ids = set()
 
