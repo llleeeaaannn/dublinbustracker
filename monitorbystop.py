@@ -37,20 +37,20 @@ def get_time_of_day(hour: int) -> str:
     else:
         return 'Night'
 
+# Function to check if current time is a peak time (Mon-Fri 7-9am or 4-6pm)
 def is_peak_hour(hour: int, day_of_week: int) -> bool:
     is_morning_peak = (7 <= hour < 9)
     is_evening_peak = (16 <= hour < 18)
     is_weekday = day_of_week < 5
     return (is_morning_peak or is_evening_peak) and is_weekday
 
+# Main monitoring function that tracks all buses at a specific stop.
 def monitor_bus(stop_id: str):
     # Logging Data to JSON file
     logger = ApiLogger()
     print(f"Logging API responses to {logger.filepath}")
 
-    """
-    Main monitoring function that tracks all buses at a specific stop.
-    """
+    # Creating directory to store monitoring data if it does not exist
     data_dir = "monitoring_data"
     os.makedirs(data_dir, exist_ok=True)
 
