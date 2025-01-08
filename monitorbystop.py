@@ -90,8 +90,11 @@ def monitor_bus(stop_id: str):
         try:
             # Get current time
             current_time = datetime.datetime.now()
+
+            # Call get live data and pass the stop to get the data and assign it to 'data' for alongside the logger
             data = get_live_data(stop_id, logger=logger)
 
+            # Create empty set
             current_trip_ids = set()
 
             for bus in data['live']:
