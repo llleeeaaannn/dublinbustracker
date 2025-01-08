@@ -54,6 +54,7 @@ def monitor_bus(stop_id: str):
     data_dir = "monitoring_data"
     os.makedirs(data_dir, exist_ok=True)
 
+    # Creating monitoring data filename
     filename = os.path.join(data_dir, f"bus_monitoring_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")
 
     with open(filename, 'w', newline='') as f:
@@ -78,7 +79,7 @@ def monitor_bus(stop_id: str):
             'tracking_duration_seconds',
             'last_seen_due_seconds'
         ])
-
+    # Create dictionary with key:value types of string:dict
     tracked_buses: Dict[str, Dict[str, Any]] = {}
 
     print(f"Starting monitoring of all buses at stop {stop_id}")
@@ -87,6 +88,7 @@ def monitor_bus(stop_id: str):
 
     while True:
         try:
+            # Get current time
             current_time = datetime.datetime.now()
             data = get_live_data(stop_id, logger=logger)
 
