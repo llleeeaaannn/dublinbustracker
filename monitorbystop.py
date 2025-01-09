@@ -119,8 +119,15 @@ def monitor_bus(stop_id: str):
                     print(f"New bus detected: Route {bus['route']}, Trip {trip_id}, Due in {round(due_in_minutes, 2)} minutes")
 
             disappeared_buses = set(tracked_buses.keys()) - current_trip_ids
-            
+
             for trip_id in disappeared_buses:
+
+                # Check when we last saw this bus
+                bus_last_seen = tracked_buses[trip_id]['last_seen_at']
+
+                # Calculate how many seconds its been since we last saw it
+                seconds_since_last_seen = (current_time - bus_last_seen).total_seconds()
+
                 bus_data = tracked_buses[trip_id]
 
                 actual_duration = (current_time - bus_data['first_seen_at']).total_seconds()
