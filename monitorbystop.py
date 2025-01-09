@@ -125,43 +125,48 @@ def monitor_bus(stop_id: str):
                 # Check when we last saw this bus
                 bus_last_seen = tracked_buses[trip_id]['last_seen_at']
 
-                # Calculate how many seconds its been since we last saw it
+                # Calculate how many seconds its been since we last saw said bus
                 seconds_since_last_seen = (current_time - bus_last_seen).total_seconds()
 
-                bus_data = tracked_buses[trip_id]
+                # If statement to only mark bus as arrived if it hasnt been seen in over 300 secs
+                if seconds_since_last_seen > 300:
 
-                actual_duration = (current_time - bus_data['first_seen_at']).total_seconds()
-                prediction_difference = actual_duration - bus_data['initial_due_in_seconds']
+                    bus_data = tracked_buses[trip_id]
 
-                day_of_week = bus_data['first_seen_at'].weekday()
-                hour = bus_data['first_seen_at'].hour
+                    actual_duration = (current_time - bus_data['first_seen_at']).total_seconds()
+                    prediction_difference = actual_duration - bus_data['initial_due_in_seconds']
 
-                with open(filename, 'a', newline='') as f:
-                    writer = csv.writer(f)
-                    writer.writerow([
-                        trip_id,
-                        bus_data['route'],
-                        bus_data['headsign'],
-                        bus_data['direction'],
-                        bus_data['first_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
-                        bus_data['initial_due_in_seconds'],
-                        current_time.strftime('%Y-%m-%d %H:%M:%S'),
-                        actual_duration,
-                        prediction_difference,
-                        prediction_difference / 60,
-                        abs(prediction_difference),
-                        (prediction_difference / bus_data['initial_due_in_seconds']) * 100,
-                        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day_of_week],
-                        day_of_week >= 5,
-                        get_time_of_day(hour),
-                        is_peak_hour(hour, day_of_week),
-                        actual_duration,
-                        bus_data['last_seen_due_seconds']
-                    ])
+                    day_of_week = bus_data['first_seen_at'].weekday()
+                    hour = bus_data['first_seen_at'].hour
 
-                print(f"Bus completed: Route {bus_data['route']}, Trip {trip_id}")
-                print(f"Prediction difference: {round(prediction_difference/60, 2)} minutes")
-                del tracked_buses[trip_id]
+                    with open(filename, 'a', newline='') as f:
+                        writer = csv.writer(f)
+                        writer.writerow([
+                            trip_id,
+                            bus_data['route'],
+                            bus_data['headsign'],
+                            bus_data['direction'],
+                            bus_data['first_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
+                            bus_data['initial_due_in_seconds'],
+                            current_time.strftime('%Y-%m-%d %H:%M:%S'),
+                            actual_duration,
+                            prediction_difference,
+                            prediction_difference / 60,
+                            abs(prediction_difference),
+                            (prediction_difference / bus_data['initial_due_in_seconds']) * 100,
+                            ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day_of_week],
+                            day_of_week >= 5,
+                            get_time_of_day(hour),
+                            is_peak_hour(hour, day_of_week),
+                            actual_duration,
+                            bus_data['last_seen_due_seconds']
+                        ])
+
+                    print(f"Bus completed: Route {bus_data['route']}, Trip {trip_id}")
+                    print(f"Prediction difference: {round(prediction_difference/60, 2)} minutes")
+
+                    # Remove bus from tracking
+                    del tracked_buses[trip_id]
 
             time.sleep(20)
         except Exception as e:
