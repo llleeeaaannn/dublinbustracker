@@ -133,7 +133,7 @@ def monitor_bus(stop_id: str):
 
                     bus_data = tracked_buses[trip_id]
 
-                    actual_duration = (current_time - bus_data['first_seen_at']).total_seconds()
+                    actual_duration = (bus_last_seen - bus_data['first_seen_at']).total_seconds()
                     prediction_difference = actual_duration - bus_data['initial_due_in_seconds']
 
                     day_of_week = bus_data['first_seen_at'].weekday()
@@ -148,7 +148,7 @@ def monitor_bus(stop_id: str):
                             bus_data['direction'],
                             bus_data['first_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
                             bus_data['initial_due_in_seconds'],
-                            current_time.strftime('%Y-%m-%d %H:%M:%S'),
+                            bus_last_seen.strftime('%Y-%m-%d %H:%M:%S'),
                             actual_duration,
                             prediction_difference,
                             prediction_difference / 60,
