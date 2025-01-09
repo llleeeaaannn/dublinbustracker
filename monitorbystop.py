@@ -163,7 +163,7 @@ def monitor_bus(stop_id: str):
                         ])
 
                     print(f"Bus completed: Route {bus_data['route']}, Trip {trip_id}")
-                    print(f"Prediction difference: {round(prediction_difference/60, 2)} minutes")
+                    print(f"Prediction difference for Route {bus_data['route']}, Trip {trip_id}: {round(prediction_difference/60, 2)} minutes")
 
                     # Remove bus from tracking
                     del tracked_buses[trip_id]
