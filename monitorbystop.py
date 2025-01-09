@@ -103,11 +103,13 @@ def monitor_bus(stop_id: str):
                 current_trip_ids.add(trip_id)
 
                 if trip_id in tracked_buses:
+                    tracked_buses[trip_id]['last_seen_at'] = current_time
                     tracked_buses[trip_id]['last_seen_due_seconds'] = bus['dueInSeconds']
 
                 if trip_id not in tracked_buses and due_in_minutes <= 10:
                     tracked_buses[trip_id] = {
                         'first_seen_at': current_time,
+                        'last_seen_at': current_time,
                         'initial_due_in_seconds': bus['dueInSeconds'],
                         'route': bus['route'],
                         'headsign': bus['headsign'],
@@ -117,6 +119,7 @@ def monitor_bus(stop_id: str):
                     print(f"New bus detected: Route {bus['route']}, Trip {trip_id}, Due in {round(due_in_minutes, 2)} minutes")
 
             disappeared_buses = set(tracked_buses.keys()) - current_trip_ids
+            
             for trip_id in disappeared_buses:
                 bus_data = tracked_buses[trip_id]
 
