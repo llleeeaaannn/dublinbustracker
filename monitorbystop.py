@@ -128,7 +128,7 @@ def monitor_bus(stop_id: str):
                 # Calculate how many seconds its been since we last saw said bus
                 seconds_since_last_seen = (current_time - bus_last_seen).total_seconds()
 
-                # If statement to only mark bus as arrived if it hasnt been seen in over 300 secs
+                # If statement to only mark bus as arrived if it hasnt been seen in over 300 secs (to prevent busses that temporarily disappeared from tracking being marked as arrived)
                 if seconds_since_last_seen > 300:
 
                     bus_data = tracked_buses[trip_id]
