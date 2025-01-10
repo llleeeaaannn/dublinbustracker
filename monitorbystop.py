@@ -6,6 +6,8 @@ import urllib.request
 import os
 from typing import Dict, Any
 from apilogger import ApiLogger
+from database import setup_database, save_to_database
+
 
 # Tries to get bus data from the API
 # If successful, returns the data and logs it
