@@ -8,7 +8,6 @@ from typing import Dict, Any
 from apilogger import ApiLogger
 from database import setup_database, save_to_database
 
-
 # Tries to get bus data from the API
 # If successful, returns the data and logs it
 # If it fails we simply return None
@@ -48,6 +47,10 @@ def is_peak_hour(hour: int, day_of_week: int) -> bool:
 
 # Main monitoring function that tracks all buses at a specific stop.
 def monitor_bus(stop_id: str):
+
+    # Set up SQLite database
+    setup_database()
+
     # Logging Data to JSON file
     logger = ApiLogger()
     print(f"Logging API responses to {logger.filepath}")
@@ -135,11 +138,21 @@ def monitor_bus(stop_id: str):
 
                     bus_data = tracked_buses[trip_id]
 
+                    # Calculate derived values
                     actual_duration = (bus_last_seen - bus_data['first_seen_at']).total_seconds()
                     prediction_difference = actual_duration - bus_data['initial_due_in_seconds']
-
                     day_of_week = bus_data['first_seen_at'].weekday()
                     hour = bus_data['first_seen_at'].hour
+
+                    # Adding derived values to bus_data object
+                    bus_data['actual_duration_seconds'] = actual_duration
+                    bus_data['prediction_difference_seconds'] = prediction_difference
+                    bus_data['day_of_week'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day_of_week]
+                    bus_data['is_weekend'] = day_of_week >= 5
+                    bus_data['time_of_day'] = get_time_of_day(hour)
+                    bus_data['peak_hours'] = is_peak_hour(hour, day_of_week)
+
+                    save_to_database(bus_data)
 
                     with open(filename, 'a', newline='') as f:
                         writer = csv.writer(f)
