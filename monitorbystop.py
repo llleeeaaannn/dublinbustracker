@@ -55,35 +55,6 @@ def monitor_bus(stop_id: str):
     logger = ApiLogger()
     print(f"Logging API responses to {logger.filepath}")
 
-    # Creating directory to store monitoring data if it does not exist
-    data_dir = "monitoring_data"
-    os.makedirs(data_dir, exist_ok=True)
-
-    # Creating monitoring data filename
-    filename = os.path.join(data_dir, f"bus_monitoring_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")
-
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            'trip_id',
-            'route',
-            'headsign',
-            'direction',
-            'first_seen_at',
-            'initial_due_in_seconds',
-            'arrival_time',
-            'actual_duration_seconds',
-            'prediction_difference_seconds',
-            'prediction_difference_minutes',
-            'absolute_difference_seconds',
-            'percentage_difference',
-            'day_of_week',
-            'is_weekend',
-            'time_of_day',
-            'peak_hours',
-            'tracking_duration_seconds',
-            'last_seen_due_seconds'
-        ])
     # Create dictionary with key:value types of string:dict
     tracked_buses: Dict[str, Dict[str, Any]] = {}
 
@@ -154,29 +125,6 @@ def monitor_bus(stop_id: str):
                     bus_data['peak_hours'] = is_peak_hour(hour, day_of_week)
 
                     save_to_database(bus_data)
-
-                    with open(filename, 'a', newline='') as f:
-                        writer = csv.writer(f)
-                        writer.writerow([
-                            trip_id,
-                            bus_data['route'],
-                            bus_data['headsign'],
-                            bus_data['direction'],
-                            bus_data['first_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
-                            bus_data['initial_due_in_seconds'],
-                            bus_last_seen.strftime('%Y-%m-%d %H:%M:%S'),
-                            bus_data['actual_duration_seconds'],
-                            bus_data['prediction_difference_seconds'],
-                            bus_data['prediction_difference_minutes'],
-                            abs(bus_data['prediction_difference_seconds']),
-                            (prediction_difference / bus_data['initial_due_in_seconds']) * 100,
-                            bus_data['day_of_week'],
-                            bus_data['is_weekend'],
-                            bus_data['time_of_day'],
-                            bus_data['peak_hours'],
-                            bus_data['actual_duration_seconds'],
-                            bus_data['last_seen_due_seconds']
-                        ])
 
                     print(f"Bus completed: Route {bus_data['route']}, Trip {trip_id}")
                     print(f"Prediction difference for Route {bus_data['route']}, Trip {trip_id}: {round(prediction_difference/60, 2)} minutes")
