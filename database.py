@@ -16,6 +16,7 @@ def setup_database(db_name: str = "bus_monitoring.db"):
             arrival_time TEXT,
             actual_duration_seconds INTEGER,
             prediction_difference_seconds INTEGER,
+            prediction_difference_minutes REAL,  # New column
             day_of_week TEXT,
             is_weekend INTEGER,
             time_of_day TEXT,
@@ -30,7 +31,7 @@ def save_to_database(bus_data: Dict[str, Any], db_name: str = "bus_monitoring.db
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO bus_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO bus_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         bus_data['trip_id'],
         bus_data['route'],
@@ -39,12 +40,13 @@ def save_to_database(bus_data: Dict[str, Any], db_name: str = "bus_monitoring.db
         bus_data['first_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
         bus_data['initial_due_in_seconds'],
         bus_data['last_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
-        (bus_data['last_seen_at'] - bus_data['first_seen_at']).total_seconds(),
-        (bus_data['last_seen_at'] - bus_data['first_seen_at']).total_seconds() - bus_data['initial_due_in_seconds'],
-        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][bus_data['first_seen_at'].weekday()],
-        bus_data['first_seen_at'].weekday() >= 5,
-        get_time_of_day(bus_data['first_seen_at'].hour),
-        is_peak_hour(bus_data['first_seen_at'].hour, bus_data['first_seen_at'].weekday())
+        bus_data['actual_duration_seconds'],
+        bus_data['prediction_difference_seconds'],
+        bus_data['prediction_difference_minutes'],  # New field
+        bus_data['day_of_week'],
+        bus_data['is_weekend'],
+        bus_data['time_of_day'],
+        bus_data['peak_hours']
     ))
     conn.commit()
     conn.close()

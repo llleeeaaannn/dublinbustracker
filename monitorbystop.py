@@ -147,6 +147,7 @@ def monitor_bus(stop_id: str):
                     # Adding derived values to bus_data object
                     bus_data['actual_duration_seconds'] = actual_duration
                     bus_data['prediction_difference_seconds'] = prediction_difference
+                    bus_data['prediction_difference_minutes'] = prediction_difference / 60
                     bus_data['day_of_week'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day_of_week]
                     bus_data['is_weekend'] = day_of_week >= 5
                     bus_data['time_of_day'] = get_time_of_day(hour)
@@ -164,16 +165,16 @@ def monitor_bus(stop_id: str):
                             bus_data['first_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
                             bus_data['initial_due_in_seconds'],
                             bus_last_seen.strftime('%Y-%m-%d %H:%M:%S'),
-                            actual_duration,
-                            prediction_difference,
-                            prediction_difference / 60,
-                            abs(prediction_difference),
+                            bus_data['actual_duration_seconds'],
+                            bus_data['prediction_difference_seconds'],
+                            bus_data['prediction_difference_minutes'],
+                            abs(bus_data['prediction_difference_seconds']),
                             (prediction_difference / bus_data['initial_due_in_seconds']) * 100,
-                            ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day_of_week],
-                            day_of_week >= 5,
-                            get_time_of_day(hour),
-                            is_peak_hour(hour, day_of_week),
-                            actual_duration,
+                            bus_data['day_of_week'],
+                            bus_data['is_weekend'],
+                            bus_data['time_of_day'],
+                            bus_data['peak_hours'],
+                            bus_data['actual_duration_seconds'],
                             bus_data['last_seen_due_seconds']
                         ])
 
