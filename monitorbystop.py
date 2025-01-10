@@ -59,7 +59,7 @@ def monitor_bus(stop_id: str):
     tracked_buses: Dict[str, Dict[str, Any]] = {}
 
     print(f"Starting monitoring of all buses at stop {stop_id}")
-    print(f"Writing data to {filename}")
+    print(f"Writing data to database")
     print(f"Will start tracking buses when they are 10 minutes or less from arrival")
 
     while True:
@@ -84,6 +84,7 @@ def monitor_bus(stop_id: str):
 
                 if trip_id not in tracked_buses and due_in_minutes <= 10:
                     tracked_buses[trip_id] = {
+                        'trip_id': trip_id,
                         'first_seen_at': current_time,
                         'last_seen_at': current_time,
                         'initial_due_in_seconds': bus['dueInSeconds'],

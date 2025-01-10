@@ -16,7 +16,7 @@ def setup_database(db_name: str = "bus_monitoring.db"):
             arrival_time TEXT,
             actual_duration_seconds INTEGER,
             prediction_difference_seconds INTEGER,
-            prediction_difference_minutes REAL,  # New column
+            prediction_difference_minutes REAL,
             day_of_week TEXT,
             is_weekend INTEGER,
             time_of_day TEXT,
@@ -42,7 +42,7 @@ def save_to_database(bus_data: Dict[str, Any], db_name: str = "bus_monitoring.db
         bus_data['last_seen_at'].strftime('%Y-%m-%d %H:%M:%S'),
         bus_data['actual_duration_seconds'],
         bus_data['prediction_difference_seconds'],
-        bus_data['prediction_difference_minutes'],  # New field
+        bus_data['prediction_difference_minutes'],
         bus_data['day_of_week'],
         bus_data['is_weekend'],
         bus_data['time_of_day'],
