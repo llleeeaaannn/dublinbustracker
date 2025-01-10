@@ -28,6 +28,7 @@ def get_live_data(stop_id: str, logger=None):
         print(f"Error fetching data: {e}")
         return None
 
+# Figures out if it's morning/afternoon/evening/night based on the hour
 def get_time_of_day(hour: int) -> str:
     if 5 <= hour < 12:
         return 'Morning'
@@ -58,6 +59,7 @@ def monitor_bus(stop_id: str):
     # Create dictionary with key:value types of string:dict
     tracked_buses: Dict[str, Dict[str, Any]] = {}
 
+    # Print to terminal (for testing)
     print(f"Starting monitoring of all buses at stop {stop_id}")
     print(f"Writing data to database")
     print(f"Will start tracking buses when they are 10 minutes or less from arrival")
@@ -73,15 +75,18 @@ def monitor_bus(stop_id: str):
             # Create empty set
             current_trip_ids = set()
 
+            # Loop through each bus in the API response and add it to our current trips
             for bus in data['live']:
                 trip_id = bus['trip_id']
                 due_in_minutes = bus['dueInSeconds'] / 60
                 current_trip_ids.add(trip_id)
 
+                # If we're already tracking this bus, update its last seen time
                 if trip_id in tracked_buses:
                     tracked_buses[trip_id]['last_seen_at'] = current_time
                     tracked_buses[trip_id]['last_seen_due_seconds'] = bus['dueInSeconds']
 
+                # If it's a new bus and it's due in the next 10 mins, start tracking it
                 if trip_id not in tracked_buses and due_in_minutes <= 10:
                     tracked_buses[trip_id] = {
                         'trip_id': trip_id,
@@ -93,8 +98,10 @@ def monitor_bus(stop_id: str):
                         'direction': bus['direction'],
                         'last_seen_due_seconds': bus['dueInSeconds']
                     }
+
                     print(f"New bus detected: Route {bus['route']}, Trip {trip_id}, Due in {round(due_in_minutes, 2)} minutes")
 
+            # Find buses that have disappeared from the response by comparing what we're tracking vs what we can see
             disappeared_buses = set(tracked_buses.keys()) - current_trip_ids
 
             for trip_id in disappeared_buses:
@@ -125,6 +132,7 @@ def monitor_bus(stop_id: str):
                     bus_data['time_of_day'] = get_time_of_day(hour)
                     bus_data['peak_hours'] = is_peak_hour(hour, day_of_week)
 
+                    # Add data to database
                     save_to_database(bus_data)
 
                     print(f"Bus completed: Route {bus_data['route']}, Trip {trip_id}")
