@@ -104,7 +104,7 @@ def monitor_bus(stop_id: str):
             # Find buses that have disappeared from the response by comparing what we're tracking vs what we can see
             disappeared_buses = set(tracked_buses.keys()) - current_trip_ids
 
-            # For each bus that has disappeared )therefore potentially arrived)
+            # For each bus that has disappeared (therefore potentially arrived)
             for trip_id in disappeared_buses:
 
                 # Check when we last saw this bus
