@@ -1,6 +1,7 @@
 import sqlite3
 from typing import Dict, Any
 
+# Sets up SQLite database
 def setup_database(db_name: str = "bus_monitoring.db"):
     """Set up the SQLite database and table."""
     conn = sqlite3.connect(db_name)
@@ -26,6 +27,7 @@ def setup_database(db_name: str = "bus_monitoring.db"):
     conn.commit()
     conn.close()
 
+# Saves data from the bus_data object to the SQLite database
 def save_to_database(bus_data: Dict[str, Any], db_name: str = "bus_monitoring.db"):
     """Save bus data to the SQLite database."""
     conn = sqlite3.connect(db_name)
